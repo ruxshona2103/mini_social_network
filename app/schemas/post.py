@@ -19,3 +19,8 @@ class PostResponse(PostBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PostUpdate(BaseModel):
+    title: str | None = None
+    content: str | None = None
