@@ -20,9 +20,12 @@ class Settings(BaseSettings):
     ALGORITHMS: list[str] = ['HS256']
     ACCESS_TOKEN_EXPIRE_MINUTES:  int= 1440
 
+    DATABASE_URL: str | None = None
+
     @property
-    def DATABASE_URL(self):
-        # urlni avtomatik yasash uchun
+    def get_database_url(self):
+        if self.DATABASE_URL:
+            return self.DATABASE_URL
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
     # 3. Pydantic'ga faylning mutlaq manzilini beramiz

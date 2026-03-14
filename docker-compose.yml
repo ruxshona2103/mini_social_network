@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # 1. Ma'lumotlar bazasi (PostgreSQL) konteyneri
+  db:
+    image: postgres:15-alpine
+    container_name: social_postgres
+    restart: always
+    environment:
+      # Baza uchun yangi parollar (Istalganini yozish mumkin)
+      POSTGRES_USER: ${POSTGRES_USER:-db}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ruxshona123}
+      POSTGRES_DB: ${POSTGRES_DB:-social_db}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-db} -d ${POSTGRES_DB:-social_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Bizning dasturimiz (FastAPI) konteyneri
+  web:
+    build: .
+    container_name: social_fastapi
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_SERVER=db
+
+# Bazadagi ma'lumotlar kompyuter o'chganda ham saqlanib qolishi uchun
+volumes:
+  postgres_data:
